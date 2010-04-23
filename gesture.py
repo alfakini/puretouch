@@ -7,25 +7,3 @@ def gesture_add_default(gdb):
     g.label = 'Circle'
     g.id = 'circle'
     gdb.add_gesture(g)
-
-class MTGestureDetector(MTGestureWidget):
-    def __init__(self, gdb, **kwargs):
-        super(MTGestureDetector, self).__init__(**kwargs)
-        self.gdb = gdb 
-
-def on_gesture(self, gesture, x, y):
-    try:
-        score, best = self.gdb.find(gesture)
-    except Exception, e:
-        return
-
-if __name__ == '__main__':
-    # Create and fill gesture database
-    gdb = GestureDatabase()
-    gesture_add_default(gdb)
-    
-    w = getWindow()
-    #w.add_widget(PanalWidget())
-    g = MTGestureDetector(gdb)
-    w.add_widget(g)
-    runTouchApp()
