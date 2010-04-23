@@ -1,1 +1,0 @@
-Puretouch é uma re-implementação da interface do Puredata utilizando o framework para interfaces multi-toque pymt, e o módulo topd, que implementa funções e objetos do Puredata em Python.

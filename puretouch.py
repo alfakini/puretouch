@@ -11,6 +11,7 @@ from utils import randpos
 #TODO: usando doubletap e gestures para melhorar a interatividade
 #TODO: tamanho do objeto cresce com o tamanho do texto digitado no teclado /pymt/examples/flowchart
 #TODO: Não atualizar o tamanho dos objetos internos quando o patch é redimencionado 
+#TODO: Posição dos inlets e outlets no box
 
 class PDPatch(MTWidget):
     def __init__(self, gesture_db, **kwargs):
@@ -53,20 +54,41 @@ class PDPatch(MTWidget):
             print "[MTPatch on_gesture] exception"   
    
     def on_draw(self):
-        for c in self.temp_connections.values():
-            box, outlet, k, touch = c
-            outletx, outlety = outlet.to_window(outlet.x, outlet.y)
-            set_color(1, 0, 0, 1)
-            drawLine([outletx, outlety, touch.x, touch.y], width=15)
+        #for c in self.temp_connections.values():
+        #    box, outlet, k, touch = c
+        #    outletx, outlety = outlet.to_window(outlet.x, outlet.y)
+        #    set_color(1, 0, 0, 1)
+        #    drawLine([outletx, outlety, touch.x, touch.y], width=15)
 
         for c in self.connections.values():
-            source_box, outlet, target_box, inlet = c
-            outletx, outlety = outlet.to_window(outlet.x, outlet.y)
-            inletx, inlety = inlet.to_window(inlet.x, inlet.y)
-            set_color(1, 0, 0, 1)
-            drawLine([outletx, outlety, inletx, inlety], width=15)
+            c.on_draw()
+        #    source_box, outlet, target_box, inlet = c
+        #    outletx, outlety = outlet.to_window(outlet.x, outlet.y)
+        #    inletx, inlety = inlet.to_window(inlet.x, inlet.y)
+        #    set_color(1, 0, 0, 1)
+        #    drawLine([outletx, outlety, inletx, inlety], width=15)
 
         super(PDPatch,self).on_draw() 
+
+
+class PDConnection(MTWidget):
+    def __init__(self, source_box, outlet, target_box, inlet,  **kwargs):
+        super(PDConnection, self).__init__(**kwargs)
+        self.source_box = source_box
+        self.outlet = outlet
+        self.target_box = target_box
+        self.inlet = inlet
+        self.state = 'temp'
+
+    def on_draw(self):
+        outletx, outlety = self.outlet.to_window(self.outlet.x, self.outlet.y)
+        if self.state == 'temp':
+            set_color(1, 0, 0, 1) 
+            drawLine([outletx, outlety, self.inlet.x, self.inlet.y], width=15)
+        else:
+            inletx, inlety = self.inlet.to_window(self.inlet.x, self.inlet.y)
+            set_color(1, 1, 0, 1)
+            drawLine([outletx, outlety, inletx, inlety], width=15)
 
 
 #FIXME: Pode-se eliminar essa classe e deixar tudo nos inlets e outlets quando as connections forem deixadas no Patch
@@ -140,7 +162,8 @@ class PDBoxWidget(MTScatterWidget):
 
         for outlet in self.outlets:
             if outlet.state == 'touched':
-                self.patch.temp_connections[touch.id] = (self, outlet, None, touch) 
+                #self.patch.temp_connections[touch.id] = (self, outlet, None, touch) 
+                self.patch.connections[touch.id] = PDConnection(self, outlet, None, touch)
      
         touch.grab(self)
         return True
@@ -152,8 +175,10 @@ class PDBoxWidget(MTScatterWidget):
             return False
 
         if touch.id in self.patch.temp_connections:
-            c = self.patch.temp_connections[touch.id]
-            self.patch.temp_connections[touch.id] = (c[0], c[1], None, touch)
+            #c = self.patch.temp_connections[touch.id]
+            #self.patch.temp_connections[touch.id] = (c[0], c[1], None, touch)
+            self.patch.connections.touch = touch
+
 
         return True
 
@@ -161,41 +186,26 @@ class PDBoxWidget(MTScatterWidget):
         super(PDBoxWidget, self).on_touch_up(touch)
 
         if self.collide_point(*touch.pos):
-            if touch.id in self.patch.temp_connections:
+            #if touch.id in self.patch.temp_connections:
+            if touch.id in self.patch.connections:
                 for inlet in self.inlets:
                     if inlet.state == 'touched':
-                        source_box, source_outlet, x, y = self.patch.temp_connections[touch.id]
-                        self.patch.connections[touch.id] = (source_box, source_outlet, self, inlet)
+                        #source_box, source_outlet, x, y = self.patch.temp_connections[touch.id]
+                        #self.patch.connections[touch.id] = (source_box, source_outlet, self, inlet)
+                        self.patch.connections[touch.id].target_box = self
+                        self.patch.connections[touch.id].inlet = inlet
+                        self.patch.connections[touch.id].state = 'connected'
                         inlet.state = 'normal'
 
         if not touch.grab_current == self:
             return False
-        if touch.id in self.patch.temp_connections: del self.patch.temp_connections[touch.id]
+        #if touch.id in self.patch.temp_connections: del self.patch.temp_connections[touch.id]
+        if touch.id in self.patch.connections and self.patch.connections[touch.id].target_box == None: del self.patch.connections[touch.id]
         touch.ungrab(self)
         return True
 
     def on_draw(self):     
         super(PDBoxWidget, self).on_draw()
-
-
-class PDConnection(MTWidget):
-    def __init__(self, source_box, outlet, target_box, inlet,  **kwargs):
-        super(PDConnection, self).__init__(**kwargs)
-        self.source_box = source_box
-        self.outlet = outlet
-        self.taget_box = target_box
-        self.inlet = inlet
-        self.state = 'temp'
-
-    def on_draw(self):
-        outletx, outlety = self.outlet.to_window(self.outlet.x, self.outlet.y)
-        if self.state == 'temp':
-            set_color(1, 0, 0, 1) 
-            drawLine([outletx, outlety, self.target_box.x, self.target_box.y], width=15)
-        else:
-            inletx, inlety = inlet.to_window(inlet.x, inlet.y)
-            set_color(1, 1, 0, 1)
-            drawLine([outletx, outlety, inletx, inlety], width=15)
 
 
 class PDObject(PDBoxWidget):
