@@ -15,7 +15,7 @@ def point_in_line(x1, y1, x2, y2, x, y):
     
     
 def objects_config():
-    f = open('objects.conf', 'r')
+    f = open('pdobjects/objects.conf', 'r')
     config = {}
     for x in f:
         if ':' in x:
