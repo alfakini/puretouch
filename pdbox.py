@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from pymt import *
+from math import fabs
+import utils
 import topd
 
 additional_css = '''
@@ -8,7 +10,7 @@ additional_css = '''
 }
 
 .box {
-    bg-color: rgb(100, 100, 100, 30);
+    bg-color: rgb(100, 100, 100, 40);
 }
 '''
 
@@ -16,51 +18,33 @@ css_add_sheet(additional_css)
 
 class PDConnection(MTWidget):
     def __init__(self,  **kwargs):
+        super(PDConnection, self).__init__(**kwargs)
         self.source = kwargs.get('source')
         self.outlet = kwargs.get('outlet')
         self.target = kwargs.get('target')
         self.inlet = kwargs.get('inlet')
         self.state = 'temp'
-
-        super(PDConnection, self).__init__(**kwargs)
+        self.line_width = 15
 
     def on_touch_down(self,touch):
         if touch.is_double_tap:
-            x1,y1,x2,y2 = self.source.x, self.source.y, self.target.x, self.target.y
-            print x1, y1, x2, y2
-
-            if self.line_collision_with_point(x1, y1, x2, y2, touch.x, touch.y):
+            x1, y1 = self.outlet.to_window(*self.outlet.pos)
+            x2, y2 = self.inlet.to_window(*self.inlet.pos)
+            y, x = touch.y, utils.line(x1+10,y1+7,x2+10,y2+7)(touch.x)
+            if(fabs(x - y) < self.line_width/2):
                 self.parent.remove_widget(self)
 
-    def on_draw(self):
-        outletx, outlety = self.outlet.to_window(self.outlet.x, self.outlet.y)
+    def draw(self):
+        outlet = self.outlet.to_window(self.outlet.x, self.outlet.y)
+        outlet = (outlet[0] + 10, outlet[1] + 7)
         if self.state == 'temp':
-            set_color(1, 0, 0, 1) 
-            drawLine([outletx, outlety, self.inlet.x, self.inlet.y], width=15)
+            set_color(1, 0, 0, 0.6) 
+            drawLine([outlet[0], outlet[1], self.inlet.x, self.inlet.y], width=self.line_width)
         else:
-            inletx, inlety = self.inlet.to_window(self.inlet.x, self.inlet.y)
-            set_color(1, 1, 0, 1)
-            drawLine([outletx, outlety, inletx, inlety], width=15)
-            
-    def line_collision_with_point(self, x1, y1, x2, y2, x, y):
-        '''From studioimaginaire'''
-        # If line is vertical
-        if x1 == x2:
-            print y, y1, y2
-            _max = max(y1,y2)
-            _min = min(y1,y2)
-            if y > _min and y < _max:
-                return True
-            else:
-                return False
-        m = float((y2 - y1)) / float((x2 - x1))
-        b = y1 - m*x1
-        result = abs(int(y) - int(m * x + b))
-
-        if result < 10:
-            return True
-        else:
-            return False
+            inlet = self.inlet.to_window(self.inlet.x, self.inlet.y)
+            inlet = (inlet[0] + 10, inlet[1] + 7)
+            set_color(0.8, 0.8, 0.0, 0.6)
+            drawLine([outlet[0], outlet[1], inlet[0], inlet[1]], width=self.line_width)
 
 class Let(MTRectangularWidget):
     def __init__(self, **kwargs):
@@ -75,6 +59,7 @@ class Let(MTRectangularWidget):
     def apply_css(self, styles):
         if 'bg-color' in styles:
             self.background = styles.get('bg-color')
+            print self.background
             super(Let, self).apply_css(styles)
 
     def draw(self):
@@ -176,6 +161,12 @@ class PDBox(MTScatterWidget):
             self.outlets.append(outlet) 
             self.outlet_box.add_widget(outlet)  
     
+    def on_touch_down(self,touch):
+        super(PDBox, self).on_touch_down(touch)
+        if self.collide_point(*touch.pos):
+            if touch.is_double_tap:
+                self.parent.remove_widget(self)
+
     def apply_css(self, styles):
         if 'bg-color' in styles:
             self.background = styles.get('bg-color')

@@ -2,6 +2,18 @@
 
 import random
 
+def line(x1, y1, x2, y2):
+    m = (y2 - y1)/(x2 - x1)
+
+    #m*(x - x1) + y1
+    return lambda x: m*(x - x1) + y1
+
+def point_in_line(x1, y1, x2, y2, x, y):
+    line_func = line(x1, y1, x2, y2)
+    #y = m*(x - x1) + y1
+    return y == line_func(x)
+    
+    
 def objects_config():
     f = open('objects.conf', 'r')
     config = {}

@@ -41,16 +41,11 @@ class PDObject(PDBox):
         print self.width
         #self.widget.width += 4
     '''
-    '''def get_value(self):
+    def get_value(self):
         return float(self.widget.label)
     def set_value(self, value):
-        if not isinstance(value, str):
-            self.widget.label = str(value)
-        #FIXME: aceitar mais de 1 outlet
-        if self.outlets[0]:
-            self.outlets[0].value = value
+        pass
     value = property(get_value, set_value)
-    '''
 
 class PDBang(PDBox):
     def __init__(self, **kwargs):
