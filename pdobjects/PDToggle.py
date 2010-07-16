@@ -19,11 +19,13 @@ class PDToggle(PDBox):
         self.pdobject = topd.Toggle(self.pdpatch)
 
     def on_press(self, *largs):
-        if not self._state % 2:
+        self._state += 1
+        if self._state % 2:
             self.pdobject.on()
         else:
             self.pdobject.off()
-        self._state+=1
+        if self.outlets[0]:
+            self.outlets[0].value = self.value
 
     def on_release(self, *largs):
         pass
@@ -33,19 +35,23 @@ class PDToggle(PDBox):
     def set_value(self, value):
         if isinstance(value, float) or isinstance(value, int):
             self._state = (1 if value else 0)
-        else:
-            if value == 'down':
-                self._state+=1
 
-        if not self._state % 2:
-            self.widget.state = 'normal'
-            self.widget.dispatch_event('on_release', None)
-        else:
+        if self._state % 2:
             self.widget.state = 'down'
-            self.widget.dispatch_event('on_press', None)
+            self.pdobject.on()
+        else:
+            self.widget.state = 'normal'
+            self.pdobject.off()
 
-        #FIXME: aceitar mais de 1 outlet
         if self.outlets[0]:
             self.outlets[0].value = self.value
+            #self.widget.dispatch_event('on_press', None)
+            #self.widget.dispatch_event('on_release', None)
+
+        #FIXME: aceitar mais de 1 outlet
     value = property(get_value, set_value)
+
+
+
+
 

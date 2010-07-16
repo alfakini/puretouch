@@ -12,15 +12,15 @@ class PDObject(PDBox):
         kwargs.setdefault('widget', MTTextInput(size=(100,30)))
         super(PDObject, self).__init__(**kwargs)
         self.widget.push_handlers(self.on_text_validate)
-        posx, posy = kwargs.get('pos')
         #topd
-        self.pdobject = Object(self.pdpatch, '', posx, posy)
+        self.pdobject = Object(self.pdpatch, '')
 
     def on_text_validate(self, *largs):
         self.label, self.parameters = (lambda x: (x[0], x[1:]))(self.widget.label.split(' '))
         pdobjs = objects_config()
         if self.label in pdobjs:
             #topd
+            self.pdobject.move(self.x, self.y)
             self.pdobject.edit(self.widget.label)
             lets = pdobjs[self.label]
             self.inlet_box.spacing = (self.width - 20*lets[0])/float((lets[0]-1))
