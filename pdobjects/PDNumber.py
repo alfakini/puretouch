@@ -14,7 +14,6 @@ class PDNumber(PDBox):
         #topd
         posx, posy = kwargs.get('pos')
         self.pdobject = topd.Number(self.pdpatch, posx, posy)
-        self.pdobject.edit('14')
 
     def on_touch_move(self, touch):
         super(PDNumber, self).on_touch_move(touch)
@@ -23,8 +22,10 @@ class PDNumber(PDBox):
             y = touch.y - self._lasty
             if y > 0:
                 self.value += 1
+                self.pdobject.increment()
             elif y < 0:
                 self.value -= 1
+                self.pdobject.decrement()
         self._lasty = touch.y
         #FIXME: aceitar mais de 1 outlet
         self.outlets[0].value = self.value

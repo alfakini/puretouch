@@ -12,9 +12,13 @@ class PDBang(PDBox):
         self.widget.push_handlers(self.on_release)
         self.widget.label = 'B'
         self._lastvalue = None
+        posx, posy = kwargs.get('pos')
+        self.pdobject = topd.Bang(self.pdpatch, posx, posy)
+
 
     def on_press(self, *largs):
         #FIXME: aceitar mais de 1 outlet
+        self.pdobject.bang()
         if self.outlets[0]:
             self.outlets[0].value = self.widget.state
 

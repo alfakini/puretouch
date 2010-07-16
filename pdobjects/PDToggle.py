@@ -13,11 +13,18 @@ class PDToggle(PDBox):
         self.widget.push_handlers(self.on_release)
         self.widget.label = 'T'
         self._state = 0
+        posx, posy = kwargs.get('pos')
+        self.pdobject = topd.Toggle(self.pdpatch, posx, posy)
+
     def on_press(self, *largs):
-        print 'on_press'
+        if not self._state % 2:
+            self.pdobject.on()
+        else:
+            self.pdobject.off()
+        self._state+=1
 
     def on_release(self, *largs):
-        print 'on_release'
+        pass
 
     def get_value(self):
         return self.widget.state
