@@ -12,8 +12,9 @@ class PDNumber(PDBox):
         self.widget.label = '0'
         self._lasty = 0
         #topd
-        posx, posy = kwargs.get('pos')
-        self.pdobject = topd.Number(self.pdpatch, posx, posy)
+        #posx, posy = kwargs.get('pos')
+        #self.pdobject = topd.Number(self.pdpatch, posx, posy)
+        self.pdobject = topd.Number(self.pdpatch)
 
     def on_touch_move(self, touch):
         super(PDNumber, self).on_touch_move(touch)

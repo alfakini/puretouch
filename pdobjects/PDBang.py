@@ -12,8 +12,10 @@ class PDBang(PDBox):
         self.widget.push_handlers(self.on_release)
         self.widget.label = 'B'
         self._lastvalue = None
-        posx, posy = kwargs.get('pos')
-        self.pdobject = topd.Bang(self.pdpatch, posx, posy)
+        #topd
+        #posx, posy = kwargs.get('pos')
+        #self.pdobject = topd.Bang(self.pdpatch, posx, posy)
+        self.pdobject = topd.Bang(self.pdpatch)
 
 
     def on_press(self, *largs):

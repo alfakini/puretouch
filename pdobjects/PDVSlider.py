@@ -11,8 +11,9 @@ class PDVSlider(PDBox):
         super(PDVSlider, self).__init__(**kwargs)
         self.widget.push_handlers(self.on_value_change)
         #topd
-        posx, posy = kwargs.get('pos')
-        self.pdobject = topd.VSlider(self.pdpatch, posx, posy)
+        #posx, posy = kwargs.get('pos')
+        #self.pdobject = topd.VSlider(self.pdpatch, posx, posy)
+        self.pdobject = topd.VSlider(self.pdpatch)
 
     def on_value_change(self, value):
         self.pdobject.update(value)

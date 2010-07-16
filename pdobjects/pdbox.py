@@ -121,18 +121,18 @@ class Outlet(Let):
 
 class PDBox(MTScatterWidget):
     def __init__(self, **kwargs):
-
+        kwargs.setdefault('cls', ('box'))
         if 'pdpatch' in kwargs:
             self.pdpatch = kwargs.get('pdpatch')
-
-        kwargs.setdefault('cls', ('box'))
         if 'widget' in kwargs:
             self.widget = kwargs.get('widget')
             self.widget.y += 15
             kwargs.setdefault('size', (self.widget.width, self.widget.height + 30))
-
         super(PDBox, self).__init__(**kwargs)
 
+        #self.push_handlers(self.on_move)
+
+        self.pdobject = None
         self.add_widget(self.widget)
         self.connections = []
 
@@ -159,9 +159,20 @@ class PDBox(MTScatterWidget):
     def on_touch_down(self,touch):
         super(PDBox, self).on_touch_down(touch)
         if self.collide_point(*touch.pos):
+            touch.grab(self)
             if touch.is_double_tap:
+                #topd
+                self.pdobject.delete()
                 self.parent.remove_widget(self)
-            return True
+        #return True
+
+    def on_touch_up(self,touch):
+        super(PDBox, self).on_touch_up(touch)
+        if touch.grab_current == self:
+            if self.collide_point(*touch.pos):
+                print 'move', touch
+                self.pdobject.move(touch.x, touch.y)
+            touch.ungrab(self)
 
     def apply_css(self, styles):
         if 'bg-color' in styles:
